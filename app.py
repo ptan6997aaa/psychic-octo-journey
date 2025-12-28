@@ -83,7 +83,7 @@ figure_lookup = {
 } 
 
 # Initialize App 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP]) 
 app.title = "Animal Shelter Operations Analysis"
 
 # =============================================================================
