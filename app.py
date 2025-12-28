@@ -61,20 +61,20 @@ fig_species.update_traces(textposition='inside', textinfo='percent+label')
 df_intake = df['Intake Type'].value_counts().head(6).reset_index()
 df_intake.columns = ['Intake Type', 'Count'] 
 
-fig_type = px.bar(
+fig_intake_type = px.bar(
     df_intake, 
     x='Count', 
     y='Intake Type', 
     orientation='h', # Horizontal bars are easier to read for categories
     text='Count'
 )
-fig_type.update_layout(
+fig_intake_type.update_layout(
     margin=dict(t=20, b=20, l=20, r=20),
     xaxis=dict(showgrid=False, showticklabels=False, title=None), # Clean look
     yaxis=dict(autorange="reversed", title=None), # Sort Top to Bottom
     plot_bgcolor='white'
 )
-fig_type.update_traces(marker_color='#6c757d', textposition='auto')
+fig_intake_type.update_traces(marker_color='#6c757d', textposition='auto')
 
 # 3. Live Outcomes Percentage (Donut Chart) 
 # Group by the boolean column and count
@@ -98,13 +98,92 @@ fig_outcomes_percentage.update_layout(
     margin=dict(t=20, b=20, l=20, r=20),
     showlegend=False 
 )
-fig_outcomes_percentage.update_traces(textposition='inside', textinfo='percent+label')
+fig_outcomes_percentage.update_traces(textposition='inside', textinfo='percent+label') 
+
+# 4. Intake & Outcome Volume Over Time (Grouped Bar Chart)
+
+# Ensure date columns are in datetime format to extract the Year
+df['Intake Date'] = pd.to_datetime(df['Intake Date'], errors='coerce')
+df['Outcome Date'] = pd.to_datetime(df['Outcome Date'], errors='coerce')
+
+# Calculate Intake Volume per Year
+df_intake_trend = df.groupby(df['Intake Date'].dt.year).size().reset_index(name='Count')
+df_intake_trend.columns = ['Year', 'Count']
+df_intake_trend['Type'] = 'Intake'
+
+# Calculate Outcome Volume per Year
+df_outcome_trend = df.groupby(df['Outcome Date'].dt.year).size().reset_index(name='Count')
+df_outcome_trend.columns = ['Year', 'Count']
+df_outcome_trend['Type'] = 'Outcome'
+
+# Combine both dataframes
+df_trend = pd.concat([df_intake_trend, df_outcome_trend])
+
+# Ensure the 'Year' is treated as an integer for clean plotting
+df_trend['Year'] = df_trend['Year'].astype(int)
+
+# Create the Line Chart
+fig_trend = px.line(
+    df_trend, 
+    x='Year', 
+    y='Count', 
+    color='Type',
+    markers=True, # Adds dots to the lines at each data point
+    color_discrete_map={'Intake': '#0d6efd', 'Outcome': '#198754'} 
+)
+
+# Update layout to match previous styles
+fig_trend.update_layout(
+    margin=dict(t=20, b=20, l=20, r=20),
+    plot_bgcolor='white',
+    xaxis=dict(
+        tickmode='linear', # Ensures every year label is shown
+        showgrid=False
+    ),
+    yaxis=dict(
+        showgrid=True, 
+        gridcolor='#e9ecef'
+    ),
+    legend=dict(
+        orientation="h", # Horizontal legend
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1,
+        title=None
+    )
+)
+
+# 5. Outcome Type Breakdown (Bar Chart)
+# Get value counts and keep only top 10
+df_outcome = df['Outcome Type'].value_counts().head(10).reset_index()
+df_outcome.columns = ['Outcome Type', 'Count'] 
+
+fig_outcome_type = px.bar(
+    df_outcome, 
+    x='Count', 
+    y='Outcome Type', 
+    orientation='h', # Horizontal bars are easier to read for categories
+    text='Count'
+)
+
+fig_outcome_type.update_layout(
+    margin=dict(t=20, b=20, l=20, r=20),
+    xaxis=dict(showgrid=False, showticklabels=False, title=None), # Clean look
+    yaxis=dict(autorange="reversed", title=None), # Sort Top to Bottom
+    plot_bgcolor='white'
+)
+
+# You can use the same grey color '#6c757d' or a different one like '#198754' (Success Green) to distinguish it
+fig_outcome_type.update_traces(marker_color='#198754', textposition='auto') 
 
 # Map string IDs to actual figure objects
 figure_lookup = {
     "fig_species": fig_species,
-    "fig_type": fig_type,
-    "fig_outcomes_percentage": fig_outcomes_percentage,
+    "fig_intake_type": fig_intake_type,
+    "fig_outcomes_percentage": fig_outcomes_percentage, 
+    "fig_trend": fig_trend, 
+    "fig_outcome_type": fig_outcome_type, 
 } 
 
 # Initialize App 
@@ -140,15 +219,15 @@ config_vertical = [
         "width": 8, # LEFT COLUMN
         "charts": [
             {"title": "Intake Species Distribution",  "id": "fig_species", "width": 6, "height": "300px"},
-            {"title": "Intake Type Breakdown",  "id": "fig_type", "width": 6, "height": "300px"},
-            {"title": "Volume Trend Over Time",      "id": "c4", "width": 12, "height": "300px"},
+            {"title": "Intake Type Breakdown",  "id": "fig_intake_type", "width": 6, "height": "300px"},
+            {"title": "Intake & Outcome Volume Over Time",      "id": "fig_trend", "width": 12, "height": "300px"},
         ]
     },
     {
         "width": 4, # RIGHT COLUMN
         "charts": [
             {"title": "Live Outcomes Percentage",    "id": "fig_outcomes_percentage", "width": 12, "height": "200px"},
-            {"title": "Outcomes Distribution",       "id": "c5", "width": 12, "height": "400px"},
+            {"title": "Outcomes Distribution",       "id": "fig_outcome_type", "width": 12, "height": "400px"},
         ]
     }
 ]
