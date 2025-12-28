@@ -1,6 +1,38 @@
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
+import pandas as pd
+
+# Load Data
+df = pd.read_csv('Animal-Shelter-Operations.csv')
+
+# --- CALCULATIONS ---
+
+# 1. Total Intakes
+# Assuming every row is a unique intake
+total_intakes = len(df)
+
+# 2. Total Outcomes
+# We count rows where an outcome has occurred (Outcome Date is not null)
+total_outcomes = df['Outcome Date'].count()
+
+# 3. Avg Length of Stay
+# Using the pre-calculated 'intake_duration' column
+avg_los = df['intake_duration'].mean()
+
+# 4. Total Adoptions
+# Filter for specific string 'ADOPTION' in Outcome Type
+total_adoptions = len(df[df['Outcome Type'] == 'ADOPTION'])
+
+# 5. Live Release Rate (LRR)
+# The dataset has a boolean column 'outcome_is_alive' which simplifies this.
+# Formula: (Count of Live Outcomes / Total Outcomes)
+total_live_outcomes = df['outcome_is_alive'].sum()
+
+if total_outcomes > 0:
+    live_release_rate = (total_live_outcomes / total_outcomes) * 100
+else:
+    live_release_rate = 0
 
 # Initialize App 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -11,11 +43,11 @@ app.title = "Animal Shelter Operations Analysis"
 # =============================================================================
 
 kpis = [
-    {"label": "Total Intakes", "value": "-", "id": "kpi-intakes"},
-    {"label": "Total Outcomes", "value": "-",   "id": "kpi-outcomes"},
-    {"label": "Avg Length of Stay", "value": "-",    "id": "kpi-stay"},
-    {"label": "Adoptions",      "value": "-","id": "kpi-Adoptions"},
-    {"label": "Live Release Rate",  "value": "-",    "id": "kpi-lrr"},
+    {"label": "Total Intakes",      "value": f"{total_intakes:,.0f}",     "id": "kpi-intakes"},
+    {"label": "Total Outcomes",     "value": f"{total_outcomes:,.0f}",    "id": "kpi-outcomes"},
+    {"label": "Avg Length of Stay", "value": f"{avg_los:.1f} Days",       "id": "kpi-stay"},
+    {"label": "Total Adoptions",    "value": f"{total_adoptions:,.0f}",   "id": "kpi-Adoptions"},
+    {"label": "Live Release Rate",  "value": f"{live_release_rate:.1f}%", "id": "kpi-lrr"},
 ]
 
 # CONFIG OPTION A: HORIZONTAL (Standard Flex Wrapping)
