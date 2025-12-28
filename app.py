@@ -57,9 +57,9 @@ fig_species.update_traces(textposition='inside', textinfo='percent+label')
 
 
 # 2. Intake Type Breakdown (Bar Chart)
-# Group by 'Intake Type' and count rows
+# Get value counts and keep only top 6 
 df_intake = df['Intake Type'].value_counts().head(6).reset_index()
-df_intake.columns = ['Intake Type', 'Count']
+df_intake.columns = ['Intake Type', 'Count'] 
 
 fig_type = px.bar(
     df_intake, 
@@ -74,7 +74,7 @@ fig_type.update_layout(
     yaxis=dict(autorange="reversed"), # Sort Top to Bottom
     plot_bgcolor='white'
 )
-fig_type.update_traces(marker_color='#6c757d', textposition='outside')
+fig_type.update_traces(marker_color='#6c757d', textposition='inside')
 
 # Map string IDs to actual figure objects
 figure_lookup = {
