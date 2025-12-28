@@ -109,43 +109,51 @@ df['Outcome Date'] = pd.to_datetime(df['Outcome Date'], errors='coerce')
 # Calculate Intake Volume per Year
 df_intake_trend = df.groupby(df['Intake Date'].dt.year).size().reset_index(name='Count')
 df_intake_trend.columns = ['Year', 'Count']
-df_intake_trend['Type'] = 'Intake'
 
 # Calculate Outcome Volume per Year
 df_outcome_trend = df.groupby(df['Outcome Date'].dt.year).size().reset_index(name='Count')
 df_outcome_trend.columns = ['Year', 'Count']
-df_outcome_trend['Type'] = 'Outcome'
 
-# Combine both dataframes
-df_trend = pd.concat([df_intake_trend, df_outcome_trend])
+# Clean years (drop NaN years before converting to int)
+df_intake_trend = df_intake_trend.dropna(subset=['Year'])
+df_outcome_trend = df_outcome_trend.dropna(subset=['Year'])
+df_intake_trend['Year'] = df_intake_trend['Year'].astype(int)
+df_outcome_trend['Year'] = df_outcome_trend['Year'].astype(int)
 
-# Ensure the 'Year' is treated as an integer for clean plotting
-df_trend['Year'] = df_trend['Year'].astype(int)
+# Build figure: add Outcome area first so Intake line sits on top
+fig_trend = go.Figure()
 
-# Create the Line Chart
-fig_trend = px.line(
-    df_trend, 
-    x='Year', 
-    y='Count', 
-    color='Type',
-    markers=True, # Adds dots to the lines at each data point
-    color_discrete_map={'Intake': '#0d6efd', 'Outcome': '#198754'} 
+fig_trend.add_trace(
+    go.Scatter(
+        x=df_outcome_trend['Year'],
+        y=df_outcome_trend['Count'],
+        name='Outcome',
+        mode='lines',
+        line=dict(color='#198754'),
+        fill='tozeroy',                       # filled area to y=0
+        fillcolor='rgba(25,135,84,0.20)'      # transparent green
+    )
 )
 
-# Update layout to match previous styles
+fig_trend.add_trace(
+    go.Scatter(
+        x=df_intake_trend['Year'],
+        y=df_intake_trend['Count'],
+        name='Intake',
+        mode='lines+markers',
+        line=dict(color='#0d6efd'),
+        marker=dict(color='#0d6efd')
+    )
+)
+
+# Layout to match your prior styling
 fig_trend.update_layout(
     margin=dict(t=20, b=20, l=20, r=20),
     plot_bgcolor='white',
-    xaxis=dict(
-        tickmode='linear', # Ensures every year label is shown
-        showgrid=False
-    ),
-    yaxis=dict(
-        showgrid=True, 
-        gridcolor='#e9ecef'
-    ),
+    xaxis=dict(tickmode='linear', showgrid=False),
+    yaxis=dict(showgrid=True, gridcolor='#e9ecef'),
     legend=dict(
-        orientation="h", # Horizontal legend
+        orientation="h",
         yanchor="bottom",
         y=1.02,
         xanchor="right",
