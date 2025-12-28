@@ -74,7 +74,7 @@ fig_type.update_layout(
     yaxis=dict(autorange="reversed"), # Sort Top to Bottom
     plot_bgcolor='white'
 )
-fig_type.update_traces(marker_color='#6c757d', textposition='inside')
+fig_type.update_traces(marker_color='#6c757d', textposition='auto')
 
 # Map string IDs to actual figure objects
 figure_lookup = {
