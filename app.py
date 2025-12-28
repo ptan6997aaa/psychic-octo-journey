@@ -49,7 +49,7 @@ fig_species = px.pie(
     color_discrete_sequence=px.colors.qualitative.Pastel
 )
 fig_species.update_layout(
-    margin=dict(t=30, b=10, l=10, r=10),
+    margin=dict(t=20, b=20, l=20, r=20),
     showlegend=False # Hide legend to save space in small cards
 )
 # Add labels inside the slices
@@ -70,16 +70,41 @@ fig_type = px.bar(
 )
 fig_type.update_layout(
     margin=dict(t=20, b=20, l=20, r=20),
-    xaxis=dict(showgrid=False, showticklabels=False), # Clean look
-    yaxis=dict(autorange="reversed"), # Sort Top to Bottom
+    xaxis=dict(showgrid=False, showticklabels=False, title=None), # Clean look
+    yaxis=dict(autorange="reversed", title=None), # Sort Top to Bottom
     plot_bgcolor='white'
 )
 fig_type.update_traces(marker_color='#6c757d', textposition='auto')
+
+# 3. Live Outcomes Percentage (Donut Chart) 
+# Group by the boolean column and count
+df_outcomes_status = df['outcome_is_alive'].value_counts().reset_index()
+df_outcomes_status.columns = ['Is Alive', 'Count']
+
+# Map True/False to text labels for the chart
+df_outcomes_status['Status'] = df_outcomes_status['Is Alive'].map({True: 'Live', False: 'Non-Live'})
+
+fig_outcomes_percentage = px.pie(
+    df_outcomes_status,
+    values='Count',
+    names='Status',
+    hole=0.5, # Donut style
+    color='Status',
+    # Map specific colors: Green for Live, Grey/Red for Non-Live
+    color_discrete_map={'Live': '#28a745', 'Non-Live': '#6c757d'} 
+)
+
+fig_outcomes_percentage.update_layout(
+    margin=dict(t=20, b=20, l=20, r=20),
+    showlegend=False 
+)
+fig_outcomes_percentage.update_traces(textposition='inside', textinfo='percent+label')
 
 # Map string IDs to actual figure objects
 figure_lookup = {
     "fig_species": fig_species,
     "fig_type": fig_type,
+    "fig_outcomes_percentage": fig_outcomes_percentage,
 } 
 
 # Initialize App 
@@ -122,7 +147,7 @@ config_vertical = [
     {
         "width": 4, # RIGHT COLUMN
         "charts": [
-            {"title": "Live Outcomes Percentage",    "id": "c3", "width": 12, "height": "200px"},
+            {"title": "Live Outcomes Percentage",    "id": "fig_outcomes_percentage", "width": 12, "height": "200px"},
             {"title": "Outcomes Distribution",       "id": "c5", "width": 12, "height": "400px"},
         ]
     }
