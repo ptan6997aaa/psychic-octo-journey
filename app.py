@@ -45,7 +45,7 @@ app.title = "Animal Shelter Operations Analysis"
 kpis = [
     {"label": "Total Intakes",      "value": f"{total_intakes:,.0f}",     "id": "kpi-intakes"},
     {"label": "Total Outcomes",     "value": f"{total_outcomes:,.0f}",    "id": "kpi-outcomes"},
-    {"label": "Avg Length of Stay", "value": f"{avg_los:.1f} Days",       "id": "kpi-stay"},
+    {"label": "Avg Length of Stay", "value": f"{avg_los:.1f}",       "id": "kpi-stay"},
     {"label": "Total Adoptions",    "value": f"{total_adoptions:,.0f}",   "id": "kpi-Adoptions"},
     {"label": "Live Release Rate",  "value": f"{live_release_rate:.1f}%", "id": "kpi-lrr"},
 ]
