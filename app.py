@@ -11,11 +11,11 @@ app.title = "Animal Shelter Operations Analysis"
 # =============================================================================
 
 kpis = [
-    {"label": "Total Intakes", "value": "1,240", "id": "kpi-intakes"},
-    {"label": "Total Outcomes", "value": "985",   "id": "kpi-outcomes"},
-    {"label": "Adoption Rate", "value": "78%",    "id": "kpi-rate"},
-    {"label": "Avg Stay",      "value": "14 Days","id": "kpi-stay"},
-    {"label": "Live Release",  "value": "94%",    "id": "kpi-lrr"},
+    {"label": "Total Intakes", "value": "-", "id": "kpi-intakes"},
+    {"label": "Total Outcomes", "value": "-",   "id": "kpi-outcomes"},
+    {"label": "Adoption Rate", "value": "-",    "id": "kpi-rate"},
+    {"label": "Avg Stay",      "value": "-","id": "kpi-stay"},
+    {"label": "Live Release",  "value": "-",    "id": "kpi-lrr"},
 ]
 
 # CONFIG OPTION A: HORIZONTAL (Standard Flex Wrapping)
