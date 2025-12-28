@@ -1,13 +1,14 @@
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-import pandas as pd
+import pandas as pd 
+import plotly.express as px 
 
 # Load Data
 df = pd.read_csv('Animal-Shelter-Operations.csv')
 
-# --- CALCULATIONS ---
-
+# Calculations 
+# KPIs
 # 1. Total Intakes
 # Assuming every row is a unique intake
 total_intakes = len(df)
@@ -34,6 +35,53 @@ if total_outcomes > 0:
 else:
     live_release_rate = 0
 
+# Charts 
+# 1. Intake Species Distribution (Pie Chart)
+# Group by 'Animal Type' and count rows
+df_species = df['Animal Type'].value_counts().reset_index()
+df_species.columns = ['Animal Type', 'Count']
+
+fig_species = px.pie(
+    df_species, 
+    values='Count', 
+    names='Animal Type', 
+    hole=0.5, # Makes it a donut chart
+    color_discrete_sequence=px.colors.qualitative.Pastel
+)
+fig_species.update_layout(
+    margin=dict(t=30, b=10, l=10, r=10),
+    showlegend=False # Hide legend to save space in small cards
+)
+# Add labels inside the slices
+fig_species.update_traces(textposition='inside', textinfo='percent+label')
+
+
+# 2. Intake Type Breakdown (Bar Chart)
+# Group by 'Intake Type' and count rows
+df_intake = df['Intake Type'].value_counts().head(6).reset_index()
+df_intake.columns = ['Intake Type', 'Count']
+
+fig_type = px.bar(
+    df_intake, 
+    x='Count', 
+    y='Intake Type', 
+    orientation='h', # Horizontal bars are easier to read for categories
+    text='Count'
+)
+fig_type.update_layout(
+    margin=dict(t=20, b=20, l=20, r=20),
+    xaxis=dict(showgrid=False, showticklabels=False), # Clean look
+    yaxis=dict(autorange="reversed"), # Sort Top to Bottom
+    plot_bgcolor='white'
+)
+fig_type.update_traces(marker_color='#6c757d', textposition='outside')
+
+# Map string IDs to actual figure objects
+figure_lookup = {
+    "fig_species": fig_species,
+    "fig_type": fig_type,
+} 
+
 # Initialize App 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "Animal Shelter Operations Analysis"
@@ -50,24 +98,24 @@ kpis = [
     {"label": "Live Release Rate",  "value": f"{live_release_rate:.1f}%", "id": "kpi-lrr"},
 ]
 
-# CONFIG OPTION A: HORIZONTAL (Standard Flex Wrapping)
-config_horizontal = [
-    # Row 1 Visual 
-    {"title": "Pie (Species)",  "id": "c1", "width": 4, "height": "300px"}, 
-    {"title": "Bar (Intakes)",  "id": "c2", "width": 4, "height": "300px"}, 
-    {"title": "Pie (Type)",     "id": "c3", "width": 4, "height": "200px"}, 
-    # Row 2 Visual 
-    {"title": "Volume Trend",   "id": "c4", "width": 8, "height": "300px"},
-    {"title": "Outcomes",       "id": "c5", "width": 4, "height": "400px"}, 
-]
+# # CONFIG OPTION A: HORIZONTAL (Standard Flex Wrapping)
+# config_horizontal = [
+#     # Row 1 Visual 
+#     {"title": "Intake Species Distribution",  "id": "Pie-Species", "width": 4, "height": "300px"}, 
+#     {"title": "Intake Type Breakdown",  "id": "Bar-Type", "width": 4, "height": "300px"}, 
+#     {"title": "Pie (Type)",     "id": "c3", "width": 4, "height": "200px"}, 
+#     # Row 2 Visual 
+#     {"title": "Volume Trend",   "id": "c4", "width": 8, "height": "300px"},
+#     {"title": "Outcomes",       "id": "c5", "width": 4, "height": "400px"}, 
+# ]
 
 # CONFIG OPTION B: VERTICAL (Independent Columns)
 config_vertical = [
     {
         "width": 8, # LEFT COLUMN
         "charts": [
-            {"title": "Intake Species Distribution", "id": "c1", "width": 6, "height": "300px"},
-            {"title": "Intake Type Breakdown",       "id": "c2", "width": 6, "height": "300px"},
+            {"title": "Intake Species Distribution",  "id": "fig_species", "width": 6, "height": "300px"},
+            {"title": "Intake Type Breakdown",  "id": "fig_type", "width": 6, "height": "300px"},
             {"title": "Volume Trend Over Time",      "id": "c4", "width": 12, "height": "300px"},
         ]
     },
@@ -101,6 +149,7 @@ def kpi_card(label, value, id_value=None):
 
 def make_card(item, width_basis=12):
     width_pct = (item['width'] / width_basis) * 100
+    actual_figure = figure_lookup.get(item['id'], empty_fig(item['title'])) 
     
     return html.Div(
         style={
@@ -114,7 +163,7 @@ def make_card(item, width_basis=12):
                 dbc.CardBody(
                     dcc.Graph(
                         id=item['id'], 
-                        figure=empty_fig(item['title']), 
+                        figure=actual_figure, 
                         config={"displayModeBar": False}, 
                         style={"height": "100%"}
                     ),
