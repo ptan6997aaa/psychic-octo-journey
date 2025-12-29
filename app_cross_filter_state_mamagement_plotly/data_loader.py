@@ -37,7 +37,6 @@ def load_data(path: str = DEFAULT_PATH) -> pd.DataFrame:
             df['intake_duration'] = 0
 
     # 5. Handle Boolean 'outcome_is_alive'
-    # Maps various string/bool formats to a clean Python Boolean
     if 'outcome_is_alive' in df.columns:
         df['outcome_is_alive'] = df['outcome_is_alive'].map({
             'TRUE': True, 'FALSE': False, 

@@ -361,6 +361,35 @@ def update_ui(sel_species, sel_intake, sel_year, sel_status, sel_outcome):
 
     return status_txt, kpi_cards, fig_species, fig_intake, fig_trend, fig_status, fig_outcome
 
+# ┌──────────────────────────────────────────────────────────────────────────────┐
+# │ 4. 新增回调：重置 clickData (解决无法再次点击取消的问题)                       │
+# └──────────────────────────────────────────────────────────────────────────────┘
+
+@app.callback(
+    [
+        Output('fig_species', 'clickData'),
+        Output('fig_intake_type', 'clickData'),
+        Output('fig_trend', 'clickData'),
+        Output('fig_outcomes_percentage', 'clickData'),
+        Output('fig_outcome_type', 'clickData'),
+    ],
+    [
+        Input('store-species', 'data'),
+        Input('store-intake-type', 'data'),
+        Input('store-year', 'data'),
+        Input('store-outcome-status', 'data'),
+        Input('store-outcome-type', 'data'),
+    ]
+)
+def reset_click_data(a, b, c, d, e):
+    """
+    当 Store 更新后（意味着筛选已完成），
+    强制将所有图表的 clickData 重置为 None。
+    这样下一次点击同一个元素时，是从 None -> Value，
+    从而确保能触发 update_filters 回调。
+    """
+    return None, None, None, None, None
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8051)

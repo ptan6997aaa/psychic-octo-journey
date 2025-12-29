@@ -1,12 +1,27 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-import plotly.graph_objects as go
 
 # =============================================================================
-# HELPER FUNCTIONS 
+# HELPER FUNCTIONS (UI COMPONENTS)
 # =============================================================================
 
-def make_card(item, width_basis=12):
+def make_kpi_card(label, val, color="#c23b5a"):
+    """
+    Generates a standard KPI card component.
+    """
+    return dbc.Card(
+        dbc.CardBody([
+            html.Div(val, style={"fontSize": "28px", "fontWeight": 700, "color": color}),
+            html.Div(label, style={"color": "#555", "fontSize": "0.9rem"})
+        ]), 
+        className="shadow-sm", 
+        style={"borderRadius": "14px"}
+    )
+
+def make_chart_card(item, width_basis=12):
+    """
+    Generates a card container for a Plotly Graph.
+    """
     width_pct = (item['width'] / width_basis) * 100
     
     return html.Div(
@@ -31,7 +46,7 @@ def build_vertical_layout(config_vertical):
     for col_cfg in config_vertical:
         stack = html.Div(
             style={"display": "flex", "flexWrap": "wrap", "margin": "-10px"},
-            children=[make_card(chart, width_basis=12) for chart in col_cfg['charts']]
+            children=[make_chart_card(chart, width_basis=12) for chart in col_cfg['charts']]
         )
         cols.append(dbc.Col(stack, width=col_cfg['width']))
     return dbc.Row(cols)
@@ -42,7 +57,7 @@ def build_vertical_layout(config_vertical):
 
 def create_layout():
     
-    # 1. Define Configuration 
+    # 1. Define Chart Grid Configuration 
     config_vertical = [
         {
             "width": 8, # LEFT COLUMN
@@ -61,9 +76,7 @@ def create_layout():
         }
     ]
 
-    # 2. Assemble Blocks
-    
-    # Header
+    # 2. Header Section
     header_section = dbc.Row(
         align="center",
         className="gy-2 mb-3",
@@ -79,7 +92,7 @@ def create_layout():
         ],
     )
 
-    # KPI Container (Populated by Callback)
+    # 3. KPI Container (Empty initially, populated by Callback)
     kpi_section = html.Div(
         id='kpi-container',
         style= {
@@ -91,10 +104,10 @@ def create_layout():
         }  
     )
 
-    # Charts
+    # 4. Charts
     chart_layout = build_vertical_layout(config_vertical) 
 
-    # Final Container
+    # 5. Final Layout Assembly
     return dbc.Container(
         fluid=True,
         style={"backgroundColor": "#f5f6fa", "minHeight": "100vh", "padding": "18px"},
