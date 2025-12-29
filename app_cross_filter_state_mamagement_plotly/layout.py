@@ -67,11 +67,11 @@ def create_layout():
     # 1. Define Chart Grid Configuration 
     # CONFIG OPTION A: HORIZONTAL (Standard Flex Wrapping)
     config_horizontal = [
-        # Row 1 Visual 
+        # Row 1 Visual (3 charts, 4 units width each = 12 total) 
         {"title": "Intake Species Distribution",  "id": "fig_species", "width": 4, "height": "300px"}, 
         {"title": "Intake Type Breakdown",  "id": "fig_intake_type", "width": 4, "height": "300px"}, 
         {"title": "Live Outcomes Percentage",     "id": "fig_outcomes_percentage", "width": 4, "height": "200px"}, 
-        # Row 2 Visual 
+        # Row 2 Visual (2 charts, 8+4 units = 12 total)  
         {"title": "Intake & Outcome Volume Over Time",   "id": "fig_trend", "width": 8, "height": "300px"},
         {"title": "Outcomes Distribution",       "id": "fig_outcome_type", "width": 4, "height": "400px"}, 
     ]
