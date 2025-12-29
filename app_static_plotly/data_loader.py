@@ -60,10 +60,4 @@ def load_data(path: str = DEFAULT_PATH) -> pd.DataFrame:
     else:
         df['intake_duration'] = 0
 
-    # 5. Derive 'outcome_is_alive' (Boolean)
-    if 'Outcome Type' in df.columns:
-        df['outcome_is_alive'] = df['Outcome Type'].str.upper().isin(LIVE_OUTCOMES)
-    else:
-        df['outcome_is_alive'] = False
-
     return df
