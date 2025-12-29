@@ -56,6 +56,12 @@ def build_vertical_layout(config_vertical, figure_lookup):
         cols.append(dbc.Col(stack, width=col_cfg['width']))
     return dbc.Row(cols)
 
+def build_horizontal_layout(config, figure_lookup):
+    return html.Div(
+        style={"display": "flex", "flexWrap": "wrap", "margin": "-10px"},
+        children=[make_card(item, figure_lookup, width_basis=12) for item in config]
+    )
+
 
 # =============================================================================
 # MAIN LAYOUT GENERATOR
@@ -72,7 +78,7 @@ def create_layout(df, kpis_data):
         "fig_outcome_type": figs.create_outcome_bar(df),
     } 
 
-    # 2. Define Configuration (Vertical Column Layout)
+    # 2. Define Configuration 
     config_vertical = [
         {
             "width": 8, # LEFT COLUMN
@@ -90,6 +96,16 @@ def create_layout(df, kpis_data):
             ]
         }
     ]
+
+    # config_horizontal = [
+    #     # Row 1 Visual 
+    #     {"title": "Intake Species Distribution",  "id": "Pie-Species", "width": 4, "height": "300px"}, 
+    #     {"title": "Intake Type Breakdown",  "id": "Bar-Type", "width": 4, "height": "300px"}, 
+    #     {"title": "Pie (Type)",     "id": "c3", "width": 4, "height": "200px"}, 
+    #     # Row 2 Visual 
+    #     {"title": "Volume Trend",   "id": "c4", "width": 8, "height": "300px"},
+    #     {"title": "Outcomes",       "id": "c5", "width": 4, "height": "400px"}, 
+    # ]
 
     # 3. Define KPI List
     kpis_list = [
@@ -128,7 +144,8 @@ def create_layout(df, kpis_data):
     )
 
     # Charts
-    chart_layout = build_vertical_layout(config_vertical, figure_lookup)
+    chart_layout = build_vertical_layout(config_vertical, figure_lookup) 
+    # chart_layout = build_horizontal_layout(config_horizontal, figure_lookup) 
 
     # Final Container
     return dbc.Container(
