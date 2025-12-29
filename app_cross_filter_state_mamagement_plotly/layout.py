@@ -41,6 +41,13 @@ def make_chart_card(item, width_basis=12):
         ]
     )
 
+def build_horizontal_layout(config_horizontal):
+    """Builds the single-row wrapping layout."""
+    return html.Div(
+        style={"display": "flex", "flexWrap": "wrap", "margin": "-10px"},
+        children=[make_chart_card(item, width_basis=12) for item in config_horizontal]
+    )
+
 def build_vertical_layout(config_vertical):
     cols = []
     for col_cfg in config_vertical:
@@ -58,6 +65,17 @@ def build_vertical_layout(config_vertical):
 def create_layout():
     
     # 1. Define Chart Grid Configuration 
+    # CONFIG OPTION A: HORIZONTAL (Standard Flex Wrapping)
+    config_horizontal = [
+        # Row 1 Visual 
+        {"title": "Intake Species Distribution",  "id": "fig_species", "width": 4, "height": "300px"}, 
+        {"title": "Intake Type Breakdown",  "id": "fig_intake_type", "width": 4, "height": "300px"}, 
+        {"title": "Live Outcomes Percentage",     "id": "fig_outcomes_percentage", "width": 4, "height": "200px"}, 
+        # Row 2 Visual 
+        {"title": "Intake & Outcome Volume Over Time",   "id": "fig_trend", "width": 8, "height": "300px"},
+        {"title": "Outcomes Distribution",       "id": "fig_outcome_type", "width": 4, "height": "400px"}, 
+    ]
+    # CONFIG OPTION B: VERTICAL (Independent Columns)
     config_vertical = [
         {
             "width": 8, # LEFT COLUMN
@@ -105,6 +123,7 @@ def create_layout():
     )
 
     # 4. Charts
+    # chart_layout = build_horizontal_layout(config_horizontal) 
     chart_layout = build_vertical_layout(config_vertical) 
 
     # 5. Final Layout Assembly
